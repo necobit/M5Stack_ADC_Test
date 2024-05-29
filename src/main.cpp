@@ -15,6 +15,8 @@ unsigned long microseconds;
 
 double vReal[samples];
 double vImag[samples];
+double peakValues[samples / 2] = {0}; // ピーク値を保持する配列
+unsigned long lastPeakResetTime = 0;  // 最後にピーク値をリセットした時間
 
 ArduinoFFT<double> FFT = ArduinoFFT<double>(vReal, vImag, samples, samplingFrequency);
 
@@ -70,8 +72,6 @@ void loop()
   FFT.complexToMagnitude();                        /* 結果を複素数から絶対値に変換 */
 
   /* 結果を表示 */
-  //  M5.Display.fillScreen(TFT_BLACK); // 画面をクリア
-
   int barWidth = 1;    // 各バーの幅
   int maxHeight = 200; // バーの最大高さ
   int startX = 30;     // バーの描画開始位置
@@ -82,9 +82,25 @@ void loop()
     float barHeight = (vReal[i] / 50.0) * maxHeight; // バーの高さを計算
     if (barHeight > maxHeight)
       barHeight = maxHeight; // 高さを最大値に制限
+
+    // ピーク値を更新
+    if (barHeight > peakValues[i])
+    {
+      peakValues[i] = barHeight;
+    }
+
+    // 現在のバーを描画
     M5.Display.fillRect(startX + (i * (barWidth + 1)), startY - barHeight, barWidth, barHeight, TFT_GREEN);
     M5.Display.fillRect(startX + (i * (barWidth + 1)), startY - barHeight - 1, barWidth, -maxHeight, TFT_BLACK);
+
+    // ピークバーを描画
+    M5.Display.fillRect(startX + (i * (barWidth + 1)), startY - peakValues[i], barWidth, 2, TFT_RED);
   }
 
-  //  delay(10); // 更新周期
+  // ピーク値のリセット
+  if (millis() - lastPeakResetTime > 2000) // 1秒ごとにリセット
+  {
+    memset(peakValues, 0, sizeof(peakValues));
+    lastPeakResetTime = millis();
+  }
 }
