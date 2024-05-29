@@ -1,5 +1,5 @@
 https://akizukidenshi.com/catalog/g/g105757/  
-秋月の高感度マイクアンプキットを M5Stack 　 BASIC の  
+秋月の高感度マイクアンプキットを M5Stack BASIC の  
 VCC-3.3V  
 GND-GND  
 OUT-35  
